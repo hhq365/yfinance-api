@@ -27,14 +27,14 @@ def get_stocks_by_tickers(tickers: List[str], markets: List[str]) -> dict[str, S
     for ticker, market in zip(tickers, markets):
         yahoo_symbol = symbol_map[ticker]
         stock = stocks_data.get(yahoo_symbol)
+        key = f"{market}-{ticker}"
         if stock:
             # 补回原始 ticker 和 market
             stock.ticker = ticker
             stock.market = market
-            results[yahoo_symbol] = stock
+            results[key] = stock
         else:
-            results[yahoo_symbol] = None
-
+            results[key] = None
     return results
 
 
