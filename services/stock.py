@@ -3,6 +3,8 @@ from typing import List
 
 import pandas as pd
 import yfinance as yf
+from cachetools import TTLCache, cached
+
 from models.stock import StockData
 from utils.safe_dict import safe_get
 from utils.markets import build_symbol

@@ -1,3 +1,4 @@
+from _decimal import Decimal
 from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Optional
@@ -16,19 +17,19 @@ def guess_currency(symbol: str):
 
 
 def convert_price(
-        price: Optional[float],
+        price: Optional[Decimal],
         from_currency: Optional[str],
         to_currency: str = "USD",
         ts: Optional[int] = None
-) -> Optional[float]:
+) -> Optional[Decimal]:
     if price is None or from_currency is None:
         return None
     if price == 0:
         return 0
     if from_currency == "HKD" and to_currency == "USD":
-        return price * 0.128
+        return price * Decimal(str(0.128))
     if from_currency == "USD" and to_currency == "HKD":
-        return price * 7.85
+        return price * Decimal(str(7.85))
 
     rate = get_fx_rate(from_currency, to_currency, ts)
     if rate is None:
@@ -44,13 +45,13 @@ def get_fx_rate(
         from_currency: str,
         to_currency: str,
         ts: Optional[int] = None  # UNIX timestamp
-) -> Optional[float]:
+) -> Optional[Decimal]:
     """
     获取汇率
     :param from_currency: 原货币，如 HKD
     :param to_currency: 目标货币，如 USD
     :param ts: 时间戳（秒），可选
-    :return: 汇率（float）或 None
+    :return: 汇率（Decimal）或 None
     """
 
     from_currency = from_currency.upper()
@@ -71,7 +72,7 @@ def get_fx_rate(
             rate = fi.get("last_price")
 
             if rate:
-                return float(rate)
+                return Decimal(rate)
 
             # fallback
             info = getattr(fx, "info", {}) or {}
@@ -104,7 +105,7 @@ def get_fx_rate(
         df["diff"] = abs(df.index - dt)
         nearest = df.sort_values("diff").iloc[0]
 
-        return float(nearest["Close"])
+        return Decimal(nearest["Close"])
 
     except Exception:
         return None
