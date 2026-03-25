@@ -18,6 +18,10 @@ def build_symbol(ticker: str, market: str) -> tuple[str, str]:
         return f"{ticker}.SZ", original
     elif market == "JP":
         return f"{ticker}.T", original
+    elif market == "KS":
+        return f"{ticker}.KS", original
+    elif market == "SI":
+        return f"{ticker}.SI", original
     elif market == "LSE":
         return f"{ticker}.L", original
     elif market == "TO":
