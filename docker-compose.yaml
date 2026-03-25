@@ -1,0 +1,13 @@
+services:
+  yfinance-api:
+    #build: .
+    image: ghcr.io/hhq365/yfinance-api:latest
+    env_file: .env       # local use only; do not commit secrets to repo
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
