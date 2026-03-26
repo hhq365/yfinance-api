@@ -59,7 +59,7 @@ def get_fx_rate(
 
     # ✅ 1. 同币种
     if from_currency == to_currency:
-        return 1.0
+        return Decimal(str(1.0))
 
     pair = f"{from_currency}{to_currency}=X"
 
