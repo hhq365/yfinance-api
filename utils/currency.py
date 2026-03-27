@@ -70,13 +70,12 @@ def get_fx_rate(
         if ts is None:
             fi = getattr(fx, "fast_info", {}) or {}
             rate = fi.get("last_price")
-
             if rate:
                 return Decimal(rate)
 
             # fallback
             info = getattr(fx, "info", {}) or {}
-            return info.get("regularMarketPrice")
+            return Decimal(info.get("regularMarketPrice"))
 
         # ✅ 3. 传了时间 → 用 history
         dt = datetime.utcfromtimestamp(ts)
@@ -86,7 +85,7 @@ def get_fx_rate(
         if (now - dt) > timedelta(days=7):
             # fallback 最新
             fi = getattr(fx, "fast_info", {}) or {}
-            return fi.get("last_price")
+            return Decimal(fi.get("last_price"))
 
         df = fx.history(
             start=dt.strftime("%Y-%m-%d"),
