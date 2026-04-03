@@ -28,3 +28,24 @@ def build_symbol(ticker: str, market: str) -> tuple[str, str]:
         return f"{ticker}.TO", original
     else:
         return ticker, original
+
+
+def market_iso_code(market: str) -> str | None:
+    if market in ["NASDAQ", "NYSE", "US"]:
+        return "XNYS"
+    elif market == "HK":
+        return "XHKG"
+    elif market in ["SS", "SZ"]:
+        return "XSHG"
+    elif market == "JP":
+        return "XTKS"
+    elif market == "KS":
+        return "XKRX"
+    elif market == "SI":
+        return "XSES"
+    elif market == "LSE":
+        return "XLON"
+    elif market == "TO":
+        return "XTSE"
+    else:
+        return None

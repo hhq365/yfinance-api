@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends
 from auth import check_api_key
 from routes import stock_routes
 from routes import currency_routes
+from routes import market_routes
 from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 
@@ -20,6 +21,7 @@ app.add_middleware(
 # 注册路由
 app.include_router(stock_routes.router, prefix="/api/yfinance/stocks", tags=["stocks"])
 app.include_router(currency_routes.router, prefix="/api/yfinance/currency", tags=["currency"])
+app.include_router(market_routes.router, prefix="/api/yfinance/market", tags=["market"])
 
 
 @app.get("/")
