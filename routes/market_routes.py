@@ -6,6 +6,7 @@ import pandas as pd
 
 from models.market_status import MarketStatus
 from utils.markets import market_iso_code
+
 router = APIRouter()
 
 
@@ -25,23 +26,18 @@ def get_market_status(
         now = pd.Timestamp(ts, unit='s', tz='UTC')
 
     is_work_day = cal.is_session(now.date())
+    next_open_time = cal.next_open(now)
+    next_close_time = cal.next_close(now)
+    marketStatus = MarketStatus(
+        is_work_day=is_work_day,
+        current_time=now.isoformat(),
+        next_open=next_open_time.isoformat(),
+        next_close=next_close_time.isoformat(),
+        seconds_to_next_open=(next_open_time - now).total_seconds()
+    )
     if cal.is_open_on_minute(now):
         session = cal.minute_to_session(now)
-        return MarketStatus(
-            is_open=True,
-            is_work_day=is_work_day,
-            current_time=now.isoformat(),
-            session_open=cal.session_open(session).isoformat(),
-            session_close=cal.session_close(session).isoformat()
-        )
-    else:
-        next_open_time = cal.next_open(now)
-        next_close_time = cal.next_close(now)
-        return MarketStatus(
-            is_open=False,
-            is_work_day=is_work_day,
-            current_time=now.isoformat(),
-            next_open=next_open_time.isoformat(),
-            next_close=next_close_time.isoformat(),
-            seconds_to_next_open=(next_open_time-now).total_seconds()
-        )
+        marketStatus.is_open = True,
+        marketStatus.current_open = cal.session_open(session).isoformat(),
+        marketStatus.current_close = cal.session_close(session).isoformat()
+    return marketStatus
