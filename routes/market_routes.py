@@ -32,11 +32,12 @@ def get_market_status(
             session_close=cal.session_close(session).isoformat()
         )
     else:
-        next_open_time = cal.next_close(now)
+        next_open_time = cal.next_open(now)
+        next_close_time = cal.next_close(now)
         return MarketStatus(
             is_open=False,
             current_time=now.isoformat(),
             next_open=next_open_time.isoformat(),
-            next_close=cal.next_close(now).isoformat(),
+            next_close=next_close_time.isoformat(),
             seconds_to_next_open=(next_open_time-now).total_seconds()
         )
