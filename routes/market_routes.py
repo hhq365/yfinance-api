@@ -1,3 +1,4 @@
+import pytz
 from fastapi import APIRouter, Query
 from typing import Optional
 import exchange_calendars as xcals
@@ -23,10 +24,12 @@ def get_market_status(
             ts = ts / 1000
         now = pd.Timestamp(ts, unit='s', tz='UTC')
 
+    is_work_day = cal.is_session(now.date())
     if cal.is_open_on_minute(now):
         session = cal.minute_to_session(now)
         return MarketStatus(
             is_open=True,
+            is_work_day=is_work_day,
             current_time=now.isoformat(),
             session_open=cal.session_open(session).isoformat(),
             session_close=cal.session_close(session).isoformat()
@@ -36,6 +39,7 @@ def get_market_status(
         next_close_time = cal.next_close(now)
         return MarketStatus(
             is_open=False,
+            is_work_day=is_work_day,
             current_time=now.isoformat(),
             next_open=next_open_time.isoformat(),
             next_close=next_close_time.isoformat(),

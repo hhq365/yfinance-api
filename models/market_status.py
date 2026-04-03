@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class MarketStatus(BaseModel):
     is_open: bool
+    is_work_day: bool
     current_time: str
     session_open: Optional[str] = None
     session_close: Optional[str] = None
