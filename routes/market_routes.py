@@ -24,8 +24,10 @@ def get_market_status(
         if ts > 1_000_000_000_000:
             ts = ts / 1000
         now = pd.Timestamp(ts, unit='s', tz='UTC')
-
-    is_work_day = cal.is_session(now.date())
+    try:
+        is_work_day = cal.is_session(now.date())
+    except Exception:
+        return {"error": f"error date time {now} for market {market}"}
     next_open_time = cal.next_open(now)
     next_close_time = cal.next_close(now)
     marketStatus = MarketStatus(
@@ -41,3 +43,4 @@ def get_market_status(
         marketStatus.current_open = cal.session_open(session).isoformat()
         marketStatus.current_close = cal.session_close(session).isoformat()
     return marketStatus
+
