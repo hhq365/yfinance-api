@@ -2,14 +2,14 @@ from fastapi import APIRouter, Query
 from typing import List, Optional
 
 from models.market_ticker import MarketTickers
-from models.res import success, error
+from models.res import success, error, ResponseModel
 from services.stock import get_stocks_by_tickers, get_stocks_by_symbols
 from models.stock import StockData
 
 router = APIRouter()
 
 
-@router.get("/tickers", response_model=dict[str, StockData | None])
+@router.get("/tickers", response_model=ResponseModel)
 async def get_stocks_tickers(
         tickers: List[str] = Query(..., description="股票代码列表"),
         markets: Optional[List[str]] = Query(None, description="对应的市场列表，如果只有一个值，会用于所有股票")
@@ -22,7 +22,7 @@ async def get_stocks_tickers(
     return success(get_stocks_by_tickers(tickers, markets))
 
 
-@router.post("/tickers", response_model=dict[str, StockData | None])
+@router.post("/tickers", response_model=ResponseModel)
 async def get_stocks_tickers_post(request: List[MarketTickers]):
     results: dict[str, StockData | None] = {}
 
@@ -37,7 +37,7 @@ async def get_stocks_tickers_post(request: List[MarketTickers]):
     return success(results)
 
 
-@router.post("/symbols", response_model=dict[str, StockData | None])
+@router.post("/symbols", response_model=ResponseModel)
 async def get_stocks_symbols_post(symbols: List[str]):
     results = get_stocks_by_symbols(symbols)
     return success(results)
