@@ -5,6 +5,7 @@ import exchange_calendars as xcals
 import pandas as pd
 
 from models.market_status import MarketStatus
+from models.res import success, error
 from utils.markets import market_iso_code
 
 router = APIRouter()
@@ -17,7 +18,7 @@ def get_market_status(
 ):
     isoCode = market_iso_code(market)
     if isoCode is None:
-        return {"error": f"No iso code found for market {market}"}
+        return error(f"No iso code found for market {market}")
     cal = xcals.get_calendar(isoCode)
     now = pd.Timestamp.utcnow()
     if ts:
@@ -27,7 +28,7 @@ def get_market_status(
     try:
         is_work_day = cal.is_session(now.date())
     except Exception:
-        return {"error": f"error date time {now} for market {market}"}
+        return error(f"error date time {now} for market {market}")
     next_open_time = cal.next_open(now)
     next_close_time = cal.next_close(now)
     marketStatus = MarketStatus(
@@ -42,5 +43,5 @@ def get_market_status(
         marketStatus.is_open = True
         marketStatus.current_open = cal.session_open(session).isoformat()
         marketStatus.current_close = cal.session_close(session).isoformat()
-    return marketStatus
+    return success(marketStatus)
 

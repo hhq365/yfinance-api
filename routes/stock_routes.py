@@ -2,6 +2,7 @@ from fastapi import APIRouter, Query
 from typing import List, Optional
 
 from models.market_ticker import MarketTickers
+from models.res import success, error
 from services.stock import get_stocks_by_tickers, get_stocks_by_symbols
 from models.stock import StockData
 
@@ -16,9 +17,9 @@ async def get_stocks_tickers(
     if markets is None:
         markets = ["US"]
     if len(markets) != 1 and len(markets) != len(tickers):
-        return {"error": "tickers 和 markets 长度不一致"}
+        return error("tickers 和 markets 长度不一致")
 
-    return get_stocks_by_tickers(tickers, markets)
+    return success(get_stocks_by_tickers(tickers, markets))
 
 
 @router.post("/tickers", response_model=dict[str, StockData | None])
@@ -33,10 +34,10 @@ async def get_stocks_tickers_post(request: List[MarketTickers]):
         # 合并 dict
         results.update(get_stocks_by_tickers(tickers, [market]))  # 返回 dict
 
-    return results
+    return success(results)
 
 
 @router.post("/symbols", response_model=dict[str, StockData | None])
 async def get_stocks_symbols_post(symbols: List[str]):
     results = get_stocks_by_symbols(symbols)
-    return results
+    return success(results)
