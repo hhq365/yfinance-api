@@ -37,7 +37,7 @@ def get_market_status(
     )
     if cal.is_open_on_minute(now):
         session = cal.minute_to_session(now)
-        marketStatus.is_open = True,
-        marketStatus.current_open = cal.session_open(session).isoformat(),
+        marketStatus.is_open = True
+        marketStatus.current_open = cal.session_open(session).isoformat()
         marketStatus.current_close = cal.session_close(session).isoformat()
     return marketStatus
