@@ -5,7 +5,7 @@ set -e
 # 镜像版本号，可通过第一个参数覆盖
 DEFAULT_VERSION=1.0.4
 
-VERSION=${1:-DEFAULT_VERSION}
+VERSION=${1:-$DEFAULT_VERSION}
 
 # Docker 仓库地址
 IMAGE=ghcr.io/hhq365/yfinance-api
