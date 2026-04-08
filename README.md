@@ -5,7 +5,7 @@ This repository is a FastAPI application for accessing and utilizing the `yfinan
 
 ## Routes
 - **`/api/yfinance/stocks/xxx`**: Fetch stock data for multiple specified symbols.
-- **`/api/yfinance/market/xxx`**: Get market status data for a stock market.
+- **`/api/yfinance/market/xxx`**: Get market status and office-time for a stock market.
 - **`/api/yfinance/currency/xxx`**: Get exchange rate between specified two currency.
 
 ## Configuration
