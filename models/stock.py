@@ -21,4 +21,5 @@ class StockData(BaseModel):
     low: Optional[Decimal]  # 今日最低
     volume: Optional[int]  # 成交量
     currency: Optional[str]  # 货币
+    rate_to_usd: Optional[Decimal] = None
     data_time: Optional[str]  # 数据时间 ISO 格式

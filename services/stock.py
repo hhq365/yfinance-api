@@ -70,7 +70,7 @@ def get_stocks_by_symbols(symbols: List[str]) -> dict[str, StockData | None]:
                 currency=fi.get("currency") or info.get("currency"),
                 data_time=dt_str
             )
-            stockData.price_usd = convert_price(stockData.price, stockData.currency)
+            stockData.price_usd, stockData.rate_to_usd = convert_price(stockData.price, stockData.currency)
             results[yahoo_symbol] = stockData
 
         except Exception as e:

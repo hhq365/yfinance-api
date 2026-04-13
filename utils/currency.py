@@ -21,20 +21,20 @@ def convert_price(
         from_currency: Optional[str],
         to_currency: str = "USD",
         ts: Optional[int] = None
-) -> Optional[Decimal]:
+) -> tuple[Optional[Decimal], Optional[Decimal]]:
     if price is None or from_currency is None:
-        return None
-    if price == 0:
-        return 0
+        return None, None
     if from_currency == "HKD" and to_currency == "USD":
-        return price * Decimal(str(0.128))
+        rate = Decimal("0.128")
+        return price * rate, rate
     if from_currency == "USD" and to_currency == "HKD":
-        return price * Decimal(str(7.85))
+        rate = Decimal("7.85")
+        return price * rate, rate
 
     rate = get_fx_rate(from_currency, to_currency, ts)
     if rate is None:
-        return None
-    return price * rate
+        return None, None
+    return price * rate, rate
 
 
 currencyRateCache = TTLCache(maxsize=128, ttl=3600)
