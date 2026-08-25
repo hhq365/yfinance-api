@@ -7,7 +7,7 @@ This repository is a FastAPI application for accessing and utilizing the `yfinan
 - **`/api/yfinance/stocks/xxx`**: Fetch stock data for multiple tickers of markets or symbols.
 - **`/api/yfinance/market/xxx`**: Get market status and office-time for specified stock market.
 - **`/api/yfinance/currency/xxx`**: Get exchange rate between two currency.
-- **`/api/gold-api/price/{symbol}`**: Get a Gold API price in USD, including prices per troy ounce and per gram.
+- **`/api/gold-api/price/{symbol}`**: Get a Gold API price in USD; weight-based assets also include a price per gram.
 - **`/api/gold-api/price/{symbol}/{currency}`**: Get the same price in a specified currency (for example, `CNY`).
 
 ## Configuration
@@ -39,7 +39,6 @@ To install the necessary requirements for this FastAPI application, follow these
 To run the FastAPI application, use:
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
-
 
 
 

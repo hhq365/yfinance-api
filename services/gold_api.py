@@ -5,7 +5,18 @@ import requests
 
 GOLD_API_BASE_URL = "https://api.gold-api.com"
 TROY_OUNCE_IN_GRAMS = 31.1034768
+POUND_IN_GRAMS = 453.59237
 REQUEST_TIMEOUT_SECONDS = 10
+
+# Precious metals are quoted per troy ounce; COMEX copper (HG) is quoted per
+# pound. Crypto assets do not have a weight unit and retain only `price`.
+PRICE_UNIT_IN_GRAMS = {
+    "XAU": TROY_OUNCE_IN_GRAMS,
+    "XAG": TROY_OUNCE_IN_GRAMS,
+    "XPT": TROY_OUNCE_IN_GRAMS,
+    "XPD": TROY_OUNCE_IN_GRAMS,
+    "HG": POUND_IN_GRAMS,
+}
 
 
 class GoldApiError(Exception):
@@ -45,10 +56,9 @@ def get_gold_price(symbol: str, currency: Optional[str] = None) -> dict[str, Any
     if isinstance(price, bool) or not isinstance(price, (int, float)):
         raise GoldApiError("Gold API response does not contain a valid price")
 
-    # Gold API quotes precious-metal prices per troy ounce.
-    data.pop("price")
-    data["pricePerOunce"] = price
-    data["pricePerGram"] = price / TROY_OUNCE_IN_GRAMS
+    grams_per_price_unit = PRICE_UNIT_IN_GRAMS.get(normalized_symbol)
+    if grams_per_price_unit is not None:
+        data["pricePerGram"] = price / grams_per_price_unit
 
     return data
 
