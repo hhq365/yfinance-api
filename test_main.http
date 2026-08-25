@@ -7,3 +7,11 @@ Accept: application/json
 GET http://127.0.0.1:8000/hello/User
 Accept: application/json
 ###
+
+GET http://127.0.0.1:8000/api/gold-api/price/XAU
+Accept: application/json
+###
+
+GET http://127.0.0.1:8000/api/gold-api/price/XAU/CNY
+Accept: application/json
+###
