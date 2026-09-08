@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Path, Response
 
+from config import get_settings
 from models.res import error, success
 from services.gold_api import GoldApiError, get_gold_price
 
 
 router = APIRouter()
+settings = get_settings()
 
 
 @router.get("/price/{symbol}")
@@ -27,11 +29,12 @@ def price_with_currency(
 
 
 def _price(response: Response, symbol: str, currency: str | None = None):
-    response.headers["Cache-Control"] = "no-store"
     try:
         data = get_gold_price(symbol, currency)
     except GoldApiError as exc:
+        response.headers["Cache-Control"] = "no-store"
         response.status_code = exc.status_code
         return error(str(exc))
 
+    response.headers["Cache-Control"] = f"max-age={settings.gold_api_price_cache_seconds}"
     return success(data)

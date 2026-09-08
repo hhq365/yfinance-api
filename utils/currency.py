@@ -1,9 +1,11 @@
 from _decimal import Decimal
 from datetime import datetime, timedelta
-from functools import lru_cache
+from threading import RLock
 from typing import Optional
 import yfinance as yf
 from cachetools import TTLCache, cached
+
+from config import get_settings
 
 
 def guess_currency(symbol: str):
@@ -37,10 +39,14 @@ def convert_price(
     return price * rate, rate
 
 
-currencyRateCache = TTLCache(maxsize=128, ttl=3600)
+settings = get_settings()
+currencyRateCache = TTLCache(
+    maxsize=128,
+    ttl=settings.yfinance_currency_rate_cache_seconds
+)
+currencyRateCacheLock = RLock()
 
 
-@cached(currencyRateCache)
 def get_fx_rate(
         from_currency: str,
         to_currency: str,
@@ -54,8 +60,15 @@ def get_fx_rate(
     :return: 汇率（Decimal）或 None
     """
 
-    from_currency = from_currency.upper()
-    to_currency = to_currency.upper()
+    return _get_fx_rate_cached(from_currency.upper(), to_currency.upper(), ts)
+
+
+@cached(currencyRateCache, lock=currencyRateCacheLock)
+def _get_fx_rate_cached(
+        from_currency: str,
+        to_currency: str,
+        ts: Optional[int] = None
+) -> Optional[Decimal]:
 
     # ✅ 1. 同币种
     if from_currency == to_currency:

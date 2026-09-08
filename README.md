@@ -16,6 +16,8 @@ You can configure the FastAPI application by create the `.env` file. The configu
 - `API_KEY_ENABLED`: if enable authorization access or not (default is `false`).
 - `API_KEYS`: assignable api keys (default is `[]`).
 - `ALLOW_ORIGINS`: allow origins of response header (default is `["*"]`).
+- `YFINANCE_CURRENCY_RATE_CACHE_SECONDS`: currency-rate cache duration in seconds (default is `3600`).
+- `GOLD_API_PRICE_CACHE_SECONDS`: Gold API price cache duration in seconds (default is `30`).
 
 ## Installation
 To install the necessary requirements for this FastAPI application, follow these steps:
@@ -39,6 +41,5 @@ To install the necessary requirements for this FastAPI application, follow these
 To run the FastAPI application, use:
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
-
 
 

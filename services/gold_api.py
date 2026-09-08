@@ -1,6 +1,10 @@
 from typing import Any, Optional
+from threading import RLock
 
 import requests
+from cachetools import TTLCache, cached
+
+from config import get_settings
 
 
 GOLD_API_BASE_URL = "https://api.gold-api.com"
@@ -18,6 +22,13 @@ PRICE_UNIT_IN_GRAMS = {
     "HG": POUND_IN_GRAMS,
 }
 
+settings = get_settings()
+goldApiPriceCache = TTLCache(
+    maxsize=128,
+    ttl=settings.gold_api_price_cache_seconds
+)
+goldApiPriceCacheLock = RLock()
+
 
 class GoldApiError(Exception):
     def __init__(self, message: str, status_code: int = 502):
@@ -28,9 +39,15 @@ class GoldApiError(Exception):
 def get_gold_price(symbol: str, currency: Optional[str] = None) -> dict[str, Any]:
     """Fetch a price from gold-api.com and add ounce/gram price fields."""
     normalized_symbol = symbol.upper()
-    url = f"{GOLD_API_BASE_URL}/price/{normalized_symbol}"
+    normalized_currency = currency.upper() if currency else None
+    return _get_gold_price_cached(normalized_symbol, normalized_currency)
+
+
+@cached(goldApiPriceCache, lock=goldApiPriceCacheLock)
+def _get_gold_price_cached(symbol: str, currency: Optional[str] = None) -> dict[str, Any]:
+    url = f"{GOLD_API_BASE_URL}/price/{symbol}"
     if currency:
-        url = f"{url}/{currency.upper()}"
+        url = f"{url}/{currency}"
 
     try:
         upstream_response = requests.get(url, timeout=REQUEST_TIMEOUT_SECONDS)
@@ -56,7 +73,7 @@ def get_gold_price(symbol: str, currency: Optional[str] = None) -> dict[str, Any
     if isinstance(price, bool) or not isinstance(price, (int, float)):
         raise GoldApiError("Gold API response does not contain a valid price")
 
-    grams_per_price_unit = PRICE_UNIT_IN_GRAMS.get(normalized_symbol)
+    grams_per_price_unit = PRICE_UNIT_IN_GRAMS.get(symbol)
     if grams_per_price_unit is not None:
         data["pricePerGram"] = price / grams_per_price_unit
 
