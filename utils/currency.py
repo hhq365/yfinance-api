@@ -1,8 +1,9 @@
-from _decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta
 from threading import RLock
 from typing import Optional
 import yfinance as yf
+import requests
 from cachetools import TTLCache, cached
 
 from config import get_settings
@@ -26,13 +27,6 @@ def convert_price(
 ) -> tuple[Optional[Decimal], Optional[Decimal]]:
     if price is None or from_currency is None:
         return None, None
-    if from_currency == "HKD" and to_currency == "USD":
-        rate = Decimal("0.128")
-        return price * rate, rate
-    if from_currency == "USD" and to_currency == "HKD":
-        rate = Decimal("7.85")
-        return price * rate, rate
-
     rate = get_fx_rate(from_currency, to_currency, ts)
     if rate is None:
         return None, None
@@ -45,6 +39,23 @@ currencyRateCache = TTLCache(
     ttl=settings.yfinance_currency_rate_cache_seconds
 )
 currencyRateCacheLock = RLock()
+
+frankfurterRateCache = TTLCache(maxsize=1, ttl=300)
+frankfurterRateCacheLock = RLock()
+
+
+@cached(frankfurterRateCache, lock=frankfurterRateCacheLock)
+def _get_frankfurter_usd_hkd() -> Decimal:
+    # Raise on failures so cachetools never caches an unavailable/invalid rate.
+    response = requests.get("https://api.frankfurter.dev/v2/rate/USD/HKD", timeout=10)
+    response.raise_for_status()
+    data = response.json()
+    if not isinstance(data, dict) or data.get("base") != "USD" or data.get("quote") != "HKD":
+        raise ValueError("Invalid Frankfurter currency pair")
+    rate = Decimal(str(data.get("rate")))
+    if not rate.is_finite() or not Decimal("0.01") < rate < Decimal("1000"):
+        raise ValueError("Invalid Frankfurter exchange rate")
+    return rate
 
 
 def get_fx_rate(
@@ -60,7 +71,14 @@ def get_fx_rate(
     :return: 汇率（Decimal）或 None
     """
 
-    return _get_fx_rate_cached(from_currency.upper(), to_currency.upper(), ts)
+    from_currency, to_currency = from_currency.upper(), to_currency.upper()
+    if ts is None and {from_currency, to_currency} == {"USD", "HKD"}:
+        try:
+            rate = _get_frankfurter_usd_hkd()
+            return rate if from_currency == "USD" else Decimal(1) / rate
+        except (requests.RequestException, ValueError, InvalidOperation):
+            return None
+    return _get_fx_rate_cached(from_currency, to_currency, ts)
 
 
 @cached(currencyRateCache, lock=currencyRateCacheLock)
