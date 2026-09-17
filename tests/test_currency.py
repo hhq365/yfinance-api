@@ -14,7 +14,7 @@ class FrankfurterTests(unittest.TestCase):
 
     @patch.object(currency.requests, "get")
     def test_conversion_and_shared_cache(self, get):
-        get.return_value = Mock(json=Mock(return_value={"base": "USD", "quote": "HKD", "rate": 7.8501}))
+        get.return_value = Mock(json=Mock(return_value={"date": "2026-09-16", "base": "USD", "quote": "HKD", "rate": 7.8501}))
         amount, rate = currency.convert_price(Decimal("2"), "usd", "hkd")
         self.assertEqual(amount, Decimal("15.7002"))
         self.assertEqual(rate, Decimal("7.8501"))
@@ -30,7 +30,7 @@ class FrankfurterTests(unittest.TestCase):
         currency.frankfurterRateCache._TimedCache__timer = cache.timer
         self.addCleanup(setattr, currency.frankfurterRateCache, "_TimedCache__timer", original_timer)
         self.addCleanup(currency.frankfurterRateCache.clear)
-        get.return_value = Mock(json=Mock(return_value={"base": "USD", "quote": "HKD", "rate": 7.8}))
+        get.return_value = Mock(json=Mock(return_value={"date": "2026-09-16", "base": "USD", "quote": "HKD", "rate": 7.8}))
         currency.get_fx_rate("USD", "HKD")
         now[0] = 299
         currency.get_fx_rate("USD", "HKD")
@@ -43,13 +43,13 @@ class FrankfurterTests(unittest.TestCase):
     @patch.object(currency.requests, "get")
     def test_failures_not_cached(self, get):
         for rate in [None, 0, -1, "NaN", "Infinity", True]:
-            get.return_value = Mock(json=Mock(return_value={"base": "USD", "quote": "HKD", "rate": rate}))
+            get.return_value = Mock(json=Mock(return_value={"date": "2026-09-16", "base": "USD", "quote": "HKD", "rate": rate}))
             self.assertEqual(currency.convert_price(Decimal(1), "USD", "HKD"), (None, None))
             self.assertEqual(len(currency.frankfurterRateCache), 0)
         get.side_effect = requests.Timeout()
         self.assertIsNone(currency.get_fx_rate("USD", "HKD"))
         get.side_effect = None
-        get.return_value.json.return_value = {"base": "USD", "quote": "HKD", "rate": 7.8}
+        get.return_value.json.return_value = {"date": "2026-09-16", "base": "USD", "quote": "HKD", "rate": 7.8}
         self.assertEqual(currency.get_fx_rate("USD", "HKD"), Decimal("7.8"))
 
     @patch.object(currency, "_get_fx_rate_cached", return_value=Decimal("7.7"))

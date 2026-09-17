@@ -6,6 +6,7 @@ from routes import currency_routes
 from routes import market_routes
 from routes import gold_api_routes
 from routes import dexscreener_routes
+from routes import frankfurter_routes
 from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 
@@ -26,6 +27,7 @@ app.include_router(currency_routes.router, prefix="/api/yfinance/currency", tags
 app.include_router(market_routes.router, prefix="/api/yfinance/market", tags=["market"])
 app.include_router(gold_api_routes.router, prefix="/api/gold-api", tags=["gold-api"])
 app.include_router(dexscreener_routes.router, prefix="/api/dexscreener", tags=["dexscreener"])
+app.include_router(frankfurter_routes.router, prefix="/api/frankfurter", tags=["frankfurter"])
 
 
 @app.get("/")

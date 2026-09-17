@@ -1,5 +1,7 @@
 from decimal import Decimal, InvalidOperation
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+import math
+import re
 from threading import RLock
 from typing import Optional
 import yfinance as yf
@@ -40,22 +42,50 @@ currencyRateCache = TTLCache(
 )
 currencyRateCacheLock = RLock()
 
-frankfurterRateCache = TTLCache(maxsize=1, ttl=300)
+frankfurterRateCache = TTLCache(maxsize=256, ttl=300)
 frankfurterRateCacheLock = RLock()
 
 
+class FrankfurterError(Exception):
+    def __init__(self, message: str, status_code: int = 502):
+        super().__init__(message)
+        self.status_code = status_code
+
+
+def get_frankfurter_rate(base: str, quote: str) -> dict:
+    base, quote = base.upper(), quote.upper()
+    if not re.fullmatch(r"[A-Z]{3}", base) or not re.fullmatch(r"[A-Z]{3}", quote):
+        raise FrankfurterError("Currency codes must contain three letters", 422)
+    try:
+        return dict(_get_frankfurter_rate_cached(base, quote))
+    except requests.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code in (400, 404, 422):
+            raise FrankfurterError(f"Unsupported currency pair: {base}/{quote}", 404) from exc
+        raise FrankfurterError("Frankfurter is currently unavailable") from exc
+    except (requests.RequestException, ValueError, InvalidOperation, OverflowError) as exc:
+        raise FrankfurterError("Frankfurter is unavailable or returned an invalid rate") from exc
+
+
 @cached(frankfurterRateCache, lock=frankfurterRateCacheLock)
-def _get_frankfurter_usd_hkd() -> Decimal:
+def _get_frankfurter_rate_cached(base: str, quote: str) -> dict:
     # Raise on failures so cachetools never caches an unavailable/invalid rate.
-    response = requests.get("https://api.frankfurter.dev/v2/rate/USD/HKD", timeout=10)
+    response = requests.get(f"https://api.frankfurter.dev/v2/rate/{base}/{quote}", timeout=10)
     response.raise_for_status()
     data = response.json()
-    if not isinstance(data, dict) or data.get("base") != "USD" or data.get("quote") != "HKD":
+    if not isinstance(data, dict) or data.get("base") != base or data.get("quote") != quote:
         raise ValueError("Invalid Frankfurter currency pair")
     rate = Decimal(str(data.get("rate")))
-    if not rate.is_finite() or not Decimal("0.01") < rate < Decimal("1000"):
+    if not rate.is_finite() or rate <= 0 or not math.isfinite(float(rate)) or float(rate) <= 0:
         raise ValueError("Invalid Frankfurter exchange rate")
-    return rate
+    rate_date = data.get("date")
+    if not isinstance(rate_date, str):
+        raise ValueError("Missing Frankfurter rate date")
+    date.fromisoformat(rate_date)
+    return {"base": base, "quote": quote, "rate": rate, "date": rate_date, "source": "Frankfurter"}
+
+
+def _get_frankfurter_usd_hkd() -> Decimal:
+    return get_frankfurter_rate("USD", "HKD")["rate"]
 
 
 def get_fx_rate(
@@ -76,7 +106,7 @@ def get_fx_rate(
         try:
             rate = _get_frankfurter_usd_hkd()
             return rate if from_currency == "USD" else Decimal(1) / rate
-        except (requests.RequestException, ValueError, InvalidOperation):
+        except (FrankfurterError, requests.RequestException, ValueError, InvalidOperation):
             return None
     return _get_fx_rate_cached(from_currency, to_currency, ts)
 

@@ -4,12 +4,30 @@
 This repository is a FastAPI application for accessing and utilizing the `yfinance` library to fetch financial data from Yahoo Finance. The API provides multiple endpoints to query stock data easily.
 
 ## Routes
+- **`/api/frankfurter/rate/{base}/{quote}`**: Latest available Frankfurter reference exchange rate, with a 5-minute server cache. Currency codes are case-insensitive, e.g. `/api/frankfurter/rate/USD/HKD` or `/api/frankfurter/rate/EUR/JPY`.
 - **`/api/yfinance/stocks/xxx`**: Fetch stock data for multiple tickers of markets or symbols.
 - **`/api/yfinance/market/xxx`**: Get market status and office-time for specified stock market.
 - **`/api/yfinance/currency/xxx`**: Get exchange rate between two currency.
 - **`/api/gold-api/price/{symbol}`**: Get a Gold API price in USD; weight-based assets also include a price per gram.
 - **`/api/gold-api/price/{symbol}/{currency}`**: Get the same price in a specified currency (for example, `CNY`).
 - **`/api/dexscreener/price/{chain}/{symbol}`**: Get a chain-specific DEX reference price with numeric `priceUSD` and `priceHKD` fields.
+
+### Frankfurter exchange rates
+
+Example response for `GET /api/frankfurter/rate/USD/HKD` (illustrative):
+
+```json
+{"code":0,"message":"success","data":{"base":"USD","quote":"HKD","rate":7.8515,"date":"2026-09-17","source":"Frankfurter"}}
+```
+
+`rate` is the amount of quote currency per one unit of base currency; `date` is
+the upstream rate date, not the request time. This is the latest available reference
+rate, not a tick-by-tick real-time quote. Successful results are cached per pair
+for 300 seconds; USD/HKD shares its cache with existing price conversions.
+Unsupported currencies return HTTP 404, malformed currency codes HTTP 422,
+and upstream failures/invalid responses HTTP 502. Failures are not cached.
+The existing application API-key policy applies. Historical queries remain on
+the existing `/api/yfinance/currency/rate` endpoint.
 
 ### DexScreener prices
 
