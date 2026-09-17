@@ -1,5 +1,5 @@
 from decimal import Decimal, InvalidOperation
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 import math
 import re
 from threading import RLock
@@ -81,7 +81,11 @@ def _get_frankfurter_rate_cached(base: str, quote: str) -> dict:
     if not isinstance(rate_date, str):
         raise ValueError("Missing Frankfurter rate date")
     date.fromisoformat(rate_date)
-    return {"base": base, "quote": quote, "rate": rate, "date": rate_date, "source": "Frankfurter"}
+    return {
+        "base": base, "quote": quote, "rate": rate, "date": rate_date,
+        "source": "Frankfurter",
+        "fetchedAt": datetime.now(timezone.utc).isoformat(),
+    }
 
 
 def _get_frankfurter_usd_hkd() -> Decimal:

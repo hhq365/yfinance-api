@@ -1,4 +1,5 @@
 import unittest
+from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
 import requests
@@ -18,9 +19,11 @@ class FrankfurterRouteTests(unittest.TestCase):
             "base": "EUR", "quote": "JPY", "rate": 170.12, "date": "2026-09-16"
         }))
         result = rate(Response(), "eur", "jpy")
+        fetched_at = result["data"]["fetchedAt"]
+        self.assertEqual(datetime.fromisoformat(fetched_at).tzinfo, timezone.utc)
         self.assertEqual(result, {"code": 0, "message": "success", "data": {
             "base": "EUR", "quote": "JPY", "rate": 170.12,
-            "date": "2026-09-16", "source": "Frankfurter"
+            "date": "2026-09-16", "source": "Frankfurter", "fetchedAt": fetched_at
         }})
         self.assertEqual(rate(Response(), "EUR", "JPY"), result)
         get.assert_called_once_with("https://api.frankfurter.dev/v2/rate/EUR/JPY", timeout=10)
