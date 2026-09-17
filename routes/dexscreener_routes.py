@@ -12,7 +12,7 @@ def price(
     chain: str = Path(..., min_length=1, max_length=64, pattern=r"^[A-Za-z0-9-]+$"),
     symbol: str = Path(..., min_length=1, max_length=32, pattern=r"^[A-Za-z0-9]+$"),
 ):
-    """按已配置的合约查询链上参考价，同时返回 USD 和 HKD 价格。"""
+    """Get an on-chain reference price for a configured token contract in both USD and HKD."""
     try:
         data = get_dexscreener_price(chain, symbol)
     except DexScreenerError as exc:

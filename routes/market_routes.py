@@ -13,8 +13,8 @@ router = APIRouter()
 
 @router.get("/status")
 def get_market_status(
-        market: str = Query(..., description="股票市场"),
-        ts: Optional[int] = Query(None, description="UNIX 时间戳，可选")
+        market: str = Query(..., description="Stock market"),
+        ts: Optional[int] = Query(None, description="Optional UNIX timestamp")
 ):
     isoCode = market_iso_code(market)
     if isoCode is None:

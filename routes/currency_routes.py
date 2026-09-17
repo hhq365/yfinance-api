@@ -11,12 +11,12 @@ router = APIRouter()
 
 @router.get("/rate")
 def fx_rate(
-        from_currency: str = Query(..., min_length=3, max_length=3, description="源货币"),
-        to_currency: str = Query(..., min_length=3, max_length=3, description="目标货币"),
-        ts: Optional[int] = Query(None, description="UNIX 时间戳，可选")
+        from_currency: str = Query(..., min_length=3, max_length=3, description="Base currency"),
+        to_currency: str = Query(..., min_length=3, max_length=3, description="Quote currency"),
+        ts: Optional[int] = Query(None, description="Optional UNIX timestamp")
 ):
     """
-    查询货币汇率
+    Get the exchange rate between two currencies.
     """
     rate = get_fx_rate(from_currency, to_currency, ts)
     if rate is None:

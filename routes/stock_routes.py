@@ -11,8 +11,8 @@ router = APIRouter()
 
 @router.get("/tickers", response_model=ResponseModel)
 async def get_stocks_tickers(
-        tickers: List[str] = Query(..., description="股票代码列表"),
-        markets: Optional[List[str]] = Query(None, description="对应的市场列表，如果只有一个值，会用于所有股票")
+        tickers: List[str] = Query(..., description="List of stock tickers"),
+        markets: Optional[List[str]] = Query(None, description="Corresponding markets. A single market applies to all tickers.")
 ):
     if markets is None:
         markets = ["US"]

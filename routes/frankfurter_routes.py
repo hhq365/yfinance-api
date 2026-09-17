@@ -9,10 +9,10 @@ router = APIRouter()
 @router.get("/rate/{base}/{quote}")
 def rate(
     response: Response,
-    base: str = Path(..., pattern=r"^[A-Za-z]{3}$", description="源货币，如 USD"),
-    quote: str = Path(..., pattern=r"^[A-Za-z]{3}$", description="目标货币，如 HKD"),
+    base: str = Path(..., pattern=r"^[A-Za-z]{3}$", description="Base currency, such as USD"),
+    quote: str = Path(..., pattern=r"^[A-Za-z]{3}$", description="Quote currency, such as HKD"),
 ):
-    """获取 Frankfurter 最新可用参考汇率，缓存 5 分钟；不是逐笔实时行情。"""
+    """Get the latest available Frankfurter reference rate, cached for 5 minutes. This is not a tick-by-tick market quote."""
     response.headers["Cache-Control"] = "no-store"
     try:
         data = get_frankfurter_rate(base, quote)

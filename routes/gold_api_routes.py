@@ -12,19 +12,19 @@ settings = get_settings()
 @router.get("/price/{symbol}")
 def price(
         response: Response,
-        symbol: str = Path(..., min_length=2, max_length=10, pattern=r"^[A-Za-z0-9]+$", description="Gold API 资产代码")
+        symbol: str = Path(..., min_length=2, max_length=10, pattern=r"^[A-Za-z0-9]+$", description="Gold API asset symbol")
 ):
-    """查询 Gold API 实时报价，并同时返回每金衡盎司与每克价格。"""
+    """Get the latest Gold API price, including per-troy-ounce and per-gram prices where applicable."""
     return _price(response, symbol)
 
 
 @router.get("/price/{symbol}/{currency}")
 def price_with_currency(
         response: Response,
-        symbol: str = Path(..., min_length=2, max_length=10, pattern=r"^[A-Za-z0-9]+$", description="Gold API 资产代码"),
-        currency: str = Path(..., min_length=3, max_length=3, pattern=r"^[A-Za-z]{3}$", description="计价货币")
+        symbol: str = Path(..., min_length=2, max_length=10, pattern=r"^[A-Za-z0-9]+$", description="Gold API asset symbol"),
+        currency: str = Path(..., min_length=3, max_length=3, pattern=r"^[A-Za-z]{3}$", description="Quote currency")
 ):
-    """使用指定货币查询 Gold API 实时报价。"""
+    """Get the latest Gold API price in the specified currency."""
     return _price(response, symbol, currency)
 
 
