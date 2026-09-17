@@ -17,11 +17,13 @@ This repository is a FastAPI application for accessing and utilizing the `yfinan
 Example response for `GET /api/frankfurter/rate/USD/HKD` (illustrative):
 
 ```json
-{"code":0,"message":"success","data":{"base":"USD","quote":"HKD","rate":7.8515,"date":"2026-09-17","source":"Frankfurter"}}
+{"code":0,"message":"success","data":{"base":"USD","quote":"HKD","rate":7.8515,"date":"2026-09-17","source":"Frankfurter","fetchedAt":"2026-09-17T03:00:00+00:00"}}
 ```
 
 `rate` is the amount of quote currency per one unit of base currency; `date` is
-the upstream rate date, not the request time. This is the latest available reference
+the upstream rate date, not the request time. `fetchedAt` is the UTC ISO 8601 time
+when this service fetched the data, preserved on cache hits; it is not the upstream
+rate update time. This is the latest available reference
 rate, not a tick-by-tick real-time quote. Successful results are cached per pair
 for 300 seconds; USD/HKD shares its cache with existing price conversions.
 Unsupported currencies return HTTP 404, malformed currency codes HTTP 422,
