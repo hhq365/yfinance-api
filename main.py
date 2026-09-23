@@ -7,6 +7,7 @@ from routes import market_routes
 from routes import gold_api_routes
 from routes import dexscreener_routes
 from routes import frankfurter_routes
+from routes import etf_routes
 from fastapi.middleware.cors import CORSMiddleware
 from config import get_settings
 
@@ -23,6 +24,7 @@ app.add_middleware(
 
 # 注册路由
 app.include_router(stock_routes.router, prefix="/api/yfinance/stocks", tags=["stocks"])
+app.include_router(etf_routes.router, prefix="/api/yfinance/etfs", tags=["etfs"])
 app.include_router(currency_routes.router, prefix="/api/yfinance/currency", tags=["currency"])
 app.include_router(market_routes.router, prefix="/api/yfinance/market", tags=["market"])
 app.include_router(gold_api_routes.router, prefix="/api/gold-api", tags=["gold-api"])
