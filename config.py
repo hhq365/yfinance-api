@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     gold_api_price_cache_seconds: int = Field(default=30, ge=0)
     dexscreener_price_cache_seconds: int = Field(default=30, ge=0)
     dexscreener_token_addresses: dict[str, dict[str, str]] = Field(default_factory=lambda: {
+        "base": {"USDC": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"},
         "ethereum": {"USDT": "0xdac17f958d2ee523a2206206994597c13d831ec7"},
         "bsc": {"USDT": "0x55d398326f99059ff775485246999027b3197955"},
         "solana": {"USDT": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"},

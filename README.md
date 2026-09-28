@@ -27,6 +27,7 @@ Open [Swagger UI](http://localhost:8000/docs) for all parameters and interactive
 | GET | `/api/gold-api/price/XAU` | Gold price in USD, including `pricePerGram` |
 | GET | `/api/gold-api/price/XAU/HKD` | Gold price in a specified currency |
 | GET | `/api/dexscreener/price/bsc/USDT` | Token price in USD and HKD, with pool and liquidity data |
+| GET | `/api/dexscreener/price/base/USDC` | Native USDC on Base, with USD/HKD prices and pool data |
 
 ### ETF queries
 
@@ -41,7 +42,7 @@ Results include `total`, `count`, `hasMore`, and `items`. Different currency cou
 
 - **Frankfurter:** cached for 5 minutes. `date` is the rate date; `fetchedAt` is the UTC fetch time and stays unchanged on cache hits. Rates are reference rates, not tick-by-tick quotes.
 - **Legacy currency endpoint:** current USD/HKD conversions use Frankfurter; other pairs and historical requests use Yahoo Finance. Historical requests older than 7 days fall back to the latest rate.
-- **DexScreener:** defaults to USDT on `ethereum`, `bsc`, `solana`, `tron`, and `arbitrum` (USD₮0). Selects the highest-liquidity eligible base-token pool with positive 24-hour volume. Returns `priceUSD`, `priceHKD`, `pairAddress`, and `liquidityUSD`, among other fields. HKD uses Frankfurter; this is a pool reference price, not an official Tether price.
+- **DexScreener:** defaults to native USDC on `base` and USDT on `ethereum`, `bsc`, `solana`, `tron`, and `arbitrum` (USD₮0). Selects the highest-liquidity eligible base-token pool with positive 24-hour volume. Returns `priceUSD`, `priceHKD`, `pairAddress`, and `liquidityUSD`, among other fields. HKD uses Frankfurter; this is a pool reference price, not an official issuer price.
 
 ## Configuration
 
